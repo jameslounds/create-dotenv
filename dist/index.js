@@ -32,12 +32,20 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.readEnv = void 0;
 const core = __importStar(__nccwpck_require__(186));
-function readEnv(envPrefix) {
+function readEnv(envPrefix, includedVars) {
     const env = process.env;
     let envFileMap = new Map();
+    if (includedVars.length === 0) {
+        console.log("No files specified, including all files");
+        includedVars = Object.keys(env);
+    }
+    else {
+        console.log("only including vars", includedVars);
+    }
     core.info("Reading environmental variable");
     for (const [key, value] of Object.entries(env)) {
-        if (key.startsWith(envPrefix)) {
+        if (key.startsWith(envPrefix) && includedVars.includes(key)) {
+            console.log("including", key);
             const regex = RegExp(`^${envPrefix}`);
             const envKeyName = key.replace(regex, "");
             const envKeyValue = String(value);
@@ -156,7 +164,13 @@ function readInput() {
     const envPrefix = core.getInput("env-prefix");
     const fileName = core.getInput("file-name");
     const directory = core.getInput("directory");
-    const inputContent = { envPrefix, fileName, directory };
+    const includeVars = JSON.parse(core.getInput("include-vars"));
+    const inputContent = {
+        envPrefix,
+        fileName,
+        directory,
+        includeVars,
+    };
     return inputContent;
 }
 exports.readInput = readInput;
@@ -210,7 +224,7 @@ const file_1 = __nccwpck_require__(14);
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const input = (0, input_1.readInput)();
-        const envFileMap = (0, env_1.readEnv)(input.envPrefix);
+        const envFileMap = (0, env_1.readEnv)(input.envPrefix, input.includeVars);
         const envFilePath = path.join(input.directory, input.fileName);
         const envFullPath = path.resolve(envFilePath);
         yield (0, file_1.writeToFile)(envFilePath, envFileMap);
