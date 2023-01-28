@@ -30,14 +30,14 @@ test("test if env file value matched with actual value", async () => {
         }
         actualMap.set(splitLine[0], splitLine[1]);
     }
-    if (actualMap.size != expectedMap.size) {
+    if (actualMap.size !== expectedMap.size) {
         console.log(`Expected: ${[...expectedMap.entries()]}`);
         console.log(`Actual: ${[...expectedMap.entries()]}`);
         throw new Error("Size of two map doesn't matched");
     }
     for (const [key, val] of expectedMap) {
         const actualValue = actualMap.get(key);
-        if (actualValue != val) {
+        if (actualValue !== val) {
             console.log(`Expected: ${[...expectedMap.entries()]}`);
             console.log(`Actual: ${[...expectedMap.entries()]}`);
             throw new Error("Value doesn't matched");

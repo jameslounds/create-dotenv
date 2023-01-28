@@ -1,65 +1,99 @@
-name: 'Build and test'
+name: "Build and test"
 
 on:
-  push:
-    branches:
-      - master
-      - staging
-      - trying
+    push:
+        branches:
+            - master
+            - staging
+            - trying
 
 env:
-  PRODUCTION: true
-  ENV_KEY_PROJECT_NAME: dot-env
+    PRODUCTION: true
+    ENV_KEY_PROJECT_NAME: dot-env
 
 jobs:
-  build:
-    name: Build package
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install dependencies
-        run: |
-          npm install
-      - name: Build and package action
-        run: |
-          npm run format-check && npm run build && npm run package
-      - name: Verify is there is no diff
-        run: |
-          if [[ -n $(git diff --exit-code) ]]
-          then
-            echo "Please run `npm run build && npm run package` to update dist folder"
-            exit
-          fi
+    build:
+        name: Build package
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: Install dependencies
+              run: |
+                  npm install
+            - name: Build and package action
+              run: |
+                  npm run format-check && npm run build && npm run package
+            - name: Verify is there is no diff
+              run: |
+                  if [[ -n $(git diff --exit-code) ]]
+                  then
+                    echo "Please run `npm run build && npm run package` to update dist folder"
+                    exit
+                  fi
 
-  test:
-    name: Test env file
-    strategy:
-      matrix:
-        os: [ macos-latest, ubuntu-latest, windows-latest ]
-    runs-on: ${{ matrix.os }}
-    env:
-      ENV_KEY_DEBUG: true
-      ENV_KEY_USERNAME: root
-    steps:
-      - uses: actions/checkout@v3
-      - id: test-action
-        uses: ./
-        with:
-          env-prefix: 'ENV_KEY_'
-          file-name: 'development.env'
-          directory: 'tests/'
+    test:
+        name: Test env file
+        strategy:
+            matrix:
+                os: [macos-latest, ubuntu-latest, windows-latest]
+        runs-on: ${{ matrix.os }}
         env:
-          IS_SERVER: false
-          ENV_KEY_USERNAME: admin
-          ENV_KEY_API_KEY: USER_API_KEY
-          ENV_KEY_SECRET_KEY: secret123
-          ENV_KEY_ENV_KEY_MULTIPLE: test
-          SOME_ENV_KEY: no_value
-      - name: Install npm dependencies
-        run: |
-          npm install
-      - name: Run test
+            ENV_KEY_DEBUG: true
+            ENV_KEY_USERNAME: root
+        steps:
+            - uses: actions/checkout@v3
+            - id: test-action
+              uses: ./
+              with:
+                  env-prefix: "ENV_KEY_"
+                  file-name: "development.env"
+                  directory: "tests/"
+              env:
+                  IS_SERVER: false
+                  ENV_KEY_USERNAME: admin
+                  ENV_KEY_API_KEY: USER_API_KEY
+                  ENV_KEY_SECRET_KEY: secret123
+                  ENV_KEY_ENV_KEY_MULTIPLE: test
+                  SOME_ENV_KEY: no_value
+            - name: Install npm dependencies
+              run: |
+                  npm install
+            - name: Run test
+              env:
+                  ENV_FILE: ${{ steps.test-action.outputs.env-file }}
+              run: |
+                  npm run test
+
+    test_include:
+        name: Test env file
+        strategy:
+            matrix:
+                os: [macos-latest, ubuntu-latest, windows-latest]
+        runs-on: ${{ matrix.os }}
         env:
-          ENV_FILE: ${{ steps.test-action.outputs.env-file }}
-        run: |
-          npm run test
+            ENV_KEY_DEBUG: true
+            ENV_KEY_USERNAME: root
+        steps:
+            - uses: actions/checkout@v3
+            - id: test-include-action
+              uses: ./
+              with:
+                  include_vars: '["ENV_KEY_USERNAME","ENV_KEY_API_KEY","ENV_KEY_SECRET_KEY","ENV_KEY_ENV_KEY_MULTIPLE"]'
+                  file-name: "development.env"
+                  directory: "tests/"
+              env:
+                  IS_SERVER: false
+                  ENV_KEY_USERNAME: admin
+                  ENV_KEY_API_KEY: USER_API_KEY
+                  ENV_KEY_SECRET_KEY: secret123
+                  ENV_KEY_ENV_KEY_MULTIPLE: test
+                  SOME_ENV_KEY: no_value
+            - run: cat tests/development.env
+            - name: Install npm dependencies
+              run: |
+                  npm install
+            - name: Run test
+              env:
+                  ENV_FILE: ${{ steps.test-include-action.outputs.env-file }}
+              run: |
+                  npm run test
