@@ -19,6 +19,7 @@ export function readEnv(
 
     for (const [key, value] of Object.entries(env)) {
         if (key.startsWith(envPrefix) && includedVars.includes(key)) {
+            console.log("including", key);
             const regex = RegExp(`^${envPrefix}`);
 
             const envKeyName = key.replace(regex, "");
