@@ -7,7 +7,7 @@ import { writeToFile } from "./file";
 async function run(): Promise<void> {
     const input: Input = readInput();
 
-    const envFileMap = readEnv(input.envPrefix);
+    const envFileMap = readEnv(input.envPrefix, input.includeVars);
 
     const envFilePath = path.join(input.directory, input.fileName);
     const envFullPath = path.resolve(envFilePath);

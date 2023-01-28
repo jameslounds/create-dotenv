@@ -4,6 +4,7 @@ export interface Input {
     envPrefix: string;
     fileName: string;
     directory: string;
+    includeVars: Array<string>;
 }
 
 export function readInput(): Input {
@@ -12,6 +13,12 @@ export function readInput(): Input {
     const envPrefix = core.getInput("env-prefix");
     const fileName = core.getInput("file-name");
     const directory = core.getInput("directory");
-    const inputContent: Input = { envPrefix, fileName, directory };
+    const includeVars = JSON.parse(core.getInput("include-vars"));
+    const inputContent: Input = {
+        envPrefix,
+        fileName,
+        directory,
+        includeVars,
+    };
     return inputContent;
 }

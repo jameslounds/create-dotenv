@@ -14,6 +14,9 @@ Location of dot env file. Default is `'.env'`
 ### `directory`
 Dot env file directory path default is `'.'`
 
+### `include-vars`
+A list of variables to include in the dot env file. If not present, all env variables are dumped
+
 ## Outputs
 
 ### `env-file`
