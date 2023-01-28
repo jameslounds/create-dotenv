@@ -11,6 +11,8 @@ export function readEnv(
     if (includedVars.length === 0) {
         console.log("No files specified, including all files");
         includedVars = Object.keys(env);
+    } else {
+        console.log("only including vars", includedVars);
     }
 
     core.info("Reading environmental variable");
